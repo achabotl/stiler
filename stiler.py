@@ -27,7 +27,7 @@ def initconfig():
     rcfile=os.getenv('HOME')+"/.stilerrc"
     if not os.path.exists(rcfile):
         cfg=open(rcfile,'w')
-        cfg.write("""#Tweak these values 
+        cfg.write("""#Tweak these values
 [default]
 BottomPadding = 0
 TopPadding = 0
@@ -68,7 +68,7 @@ def initialize():
 
 def get_active_window():
     return str(hex(int(commands.getoutput("xdotool getactivewindow 2>/dev/null").split()[0])))
-    
+
 
 def store(object,file):
     with open(file, 'w') as f:
@@ -103,13 +103,13 @@ TempFile = Config.get("default","TempFile")
 MaxWidth = int(MaxWidthStr) - LeftPadding - RightPadding
 MaxHeight = int(MaxHeightStr) - TopPadding - BottomPadding
 OrigX = int(OrigXstr) + LeftPadding
-OrigY = int(OrigYstr) + TopPadding 
+OrigY = int(OrigYstr) + TopPadding
 OldWinList = retrieve(TempFile)
 
 
 def get_simple_tile(wincount):
     rows = wincount - 1
-    layout = [] 
+    layout = []
     if rows == 0:
         layout.append((OrigX,OrigY,MaxWidth,MaxHeight-WinTitle-WinBorder))
         return layout
@@ -119,7 +119,7 @@ def get_simple_tile(wincount):
     x=OrigX + int((MaxWidth*MwFactor)+(2*WinBorder))
     width=int((MaxWidth*(1-MwFactor))-2*WinBorder)
     height=int(MaxHeight/rows - WinTitle-WinBorder)
-    
+
     for n in range(0,rows):
         y= OrigY+int((MaxHeight/rows)*(n))
         layout.append((x,y,width,height))
@@ -128,7 +128,7 @@ def get_simple_tile(wincount):
 
 
 def get_vertical_tile(wincount):
-    layout = [] 
+    layout = []
     y = OrigY
     width = int(MaxWidth/wincount)
     height = MaxHeight - WinTitle - WinBorder
@@ -140,7 +140,7 @@ def get_vertical_tile(wincount):
 
 
 def get_horiz_tile(wincount):
-    layout = [] 
+    layout = []
     x = OrigX
     height = int(MaxHeight/wincount - WinTitle - WinBorder)
     width = MaxWidth
@@ -151,9 +151,9 @@ def get_horiz_tile(wincount):
     return layout
 
 def get_max_all(wincount):
-    layout = [] 
+    layout = []
     x = OrigX
-    y = OrigY 
+    y = OrigY
     height = MaxHeight - WinTitle - WinBorder
     width = MaxWidth
     for n in range(0,wincount):
@@ -180,7 +180,7 @@ def raise_window(windowid):
         command = "wmctrl -a :ACTIVE: "
     else:
         command - "wmctrl -i -a " + windowid
-    
+
     os.system(command)
 
 
@@ -195,12 +195,37 @@ def left():
 
 def right():
     Width=MaxWidth/2-1
-    Height=MaxHeight - WinTitle - WinBorder 
+    Height=MaxHeight - WinTitle - WinBorder
     PosX=MaxWidth/2
     PosY=TopPadding
     move_active(PosX,PosY,Width,Height)
     raise_window(":ACTIVE:")
-    
+
+
+def thirds(pos):
+    Width=MaxWidth/3-1
+    Height=MaxHeight - WinTitle -WinBorder
+    if pos == "left":
+        PosX=LeftPadding
+    elif pos == "middle":
+        PosX=MaxWidth/3
+    elif pos == "right":
+        PosX=2*MaxWidth/3
+    PosY=TopPadding
+    move_active(PosX,PosY,Width,Height)
+    raise_window(":ACTIVE:")
+
+def twothirds(pos):
+    Width=2*MaxWidth/3-1
+    Height=MaxHeight - WinTitle -WinBorder
+    if pos == "left":
+        PosX=LeftPadding
+    elif pos == "right":
+        PosX=MaxWidth/3
+    PosY=TopPadding
+    move_active(PosX,PosY,Width,Height)
+    raise_window(":ACTIVE:")
+
 
 def compare_win_list(newlist,oldlist):
     templist = []
@@ -208,7 +233,7 @@ def compare_win_list(newlist,oldlist):
         if newlist.count(window) != 0:
             templist.append(window)
     for window in newlist:
-        if oldlist.count(window) == 0: 
+        if oldlist.count(window) == 0:
             templist.append(window)
     return templist
 
@@ -238,7 +263,7 @@ def arrange(layout,windows):
 def simple():
     Windows = create_win_list()
     arrange(get_simple_tile(len(Windows)),Windows)
-   
+
 
 def swap():
     winlist = create_win_list()
@@ -292,6 +317,16 @@ if sys.argv[1] == "left":
     left()
 elif sys.argv[1] == "right":
     right()
+elif sys.argv[1] == "thirds_left":
+    thirds("left")
+elif sys.argv[1] == "thirds_middle":
+    thirds("middle")
+elif sys.argv[1] == "thirds_right":
+    thirds("right")
+elif sys.argv[1] == "2thirds_left":
+    twothirds("left")
+elif sys.argv[1] == "2thirds_right":
+    twothirds("right")
 elif sys.argv[1] == "simple":
     simple()
 elif sys.argv[1] == "vertical":
@@ -306,4 +341,3 @@ elif sys.argv[1] == "maximize":
     maximize()
 elif sys.argv[1] == "max_all":
     max_all()
-
